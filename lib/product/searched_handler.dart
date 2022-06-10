@@ -1,4 +1,5 @@
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:yt_downloader/product/video_model.dart';
 
 class SearchedHolder {
   static SearchedHolder? _instance;
@@ -8,13 +9,13 @@ class SearchedHolder {
     return _instance!;
   }
 
-  late final List<Video> _videoList;
-  late final List<Video> _downloadedVideoList;
-  List<Video> get getVideoList => _videoList;
-  List<Video> get getDownloadedVideoList => _downloadedVideoList;
+  late final List<BaseVideoModel?> _videoList;
+  late final List<BaseVideoModel?> _downloadedVideoList;
+  List<BaseVideoModel?> get getVideoList => _videoList;
+  List<BaseVideoModel?> get getDownloadedVideoList => _downloadedVideoList;
 
-  void addVideoToSearched(Video video) => _videoList.add(video);
-  void addDownloadedVideo(Video video) => _downloadedVideoList.add(video);
+  void addVideoToSearched(BaseVideoModel? video) => _videoList.add(video);
+  void addDownloadedVideo(BaseVideoModel? video) => _downloadedVideoList.add(video);
   void removeVideoFromSearched(int index) => _videoList.removeAt(index);
   void removeFromDownloadedVideo(int index) => _downloadedVideoList.removeAt(index);
 

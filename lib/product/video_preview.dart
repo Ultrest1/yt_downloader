@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+
+import 'video_model.dart';
 
 class VideoPreview extends StatelessWidget {
-  VideoPreview(
-      {Key? key,
-      required this.video,
-      required this.onTap,
-      this.progress,
-      required this.isStarted,
-      this.isDownloaded = false})
-      : super(key: key);
-  final Video? video;
+  VideoPreview({
+    Key? key,
+    required this.video,
+    required this.onTap,
+  }) : super(key: key);
+  final BaseVideoModel? video;
   VoidCallback? onTap;
-  bool isDownloaded;
-  Map<int, int>? progress;
-  bool isStarted;
 
   final download = "Download";
 
@@ -23,37 +18,50 @@ class VideoPreview extends StatelessWidget {
     if (video == null) {
       return const Center(child: Text("Null video"));
     } else {
-      return isDownloaded == false
-          ? Padding(
-              padding: EdgeInsets.all(20),
-              child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                elevation: 10,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [thumbnail(), videoDetails(context)],
-                ),
+      switch (video?.isDownloaded) {
+        case true:
+          return downloaded(context);
+        case false:
+          return notDownloaded(context);
+        default:
+          return const Center(child: Text("Hello"));
+      }
+    }
+  }
+
+  Padding downloaded(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Row(
+          children: [
+            Expanded(flex: 5, child: videoThumbnail()),
+            Expanded(
+              flex: 20,
+              child: Text(
+                video?.video?.title ?? "null title",
+                style: Theme.of(context).textTheme.headline4,
               ),
             )
-          : Padding(
-              padding: EdgeInsets.all(20),
-              child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                child: Row(
-                  children: [
-                    Expanded(flex: 5, child: videoThumbnail()),
-                    Expanded(
-                      flex: 20,
-                      child: Text(
-                        video?.title ?? "null title",
-                        style: Theme.of(context).textTheme.headline4,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-    }
+          ],
+        ),
+      ),
+    );
+  }
+
+  Padding notDownloaded(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 10,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [thumbnail(), videoDetails(context)],
+        ),
+      ),
+    );
   }
 
   Expanded thumbnail() {
@@ -61,12 +69,21 @@ class VideoPreview extends StatelessWidget {
         child: Column(
       children: [
         videoThumbnail(),
+        Text("Author: ${video?.video?.author}"),
+        Text("View count: ${video?.video?.engagement.viewCount}"),
+        Text("Duration: ${video?.video?.duration?.inMinutes}:${video?.video?.duration?.inSeconds}"),
         ElevatedButton(onPressed: onTap, child: Text(download)),
-        isStarted == false
+        const Divider(),
+        video?.progress == null
             ? SizedBox()
-            : CircularProgressIndicator.adaptive(
-                value: (progress?.entries.first.key ?? 0) / (progress?.entries.first.value ?? 0),
+            : LinearProgressIndicator(
+                value: (video?.progress ?? 1) / 10,
               )
+        // progress == ""
+        //     ? const SizedBox()
+        //     : CircularProgressIndicator(
+        //         value: double.parse(progress ?? "1"),
+        //       )
       ],
     ));
   }
@@ -76,7 +93,7 @@ class VideoPreview extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Image.network(video?.thumbnails.highResUrl ?? "")));
+            child: Image.network(video?.video?.thumbnails.highResUrl ?? "")));
   }
 
   Expanded videoDetails(BuildContext context) {
@@ -85,15 +102,15 @@ class VideoPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(video?.title ?? "null title", style: Theme.of(context).textTheme.headline4),
+          Text(video?.video?.title ?? "null title", style: Theme.of(context).textTheme.headline4),
           const Divider(),
           SizedBox(
-            height: 300,
+            height: (video?.video!.description.length ?? 10) > 50 ? 250 : 100,
             child: SingleChildScrollView(
-                physics: video!.description.length > 50
+                physics: (video?.video!.description.length ?? 10) > 50
                     ? const AlwaysScrollableScrollPhysics()
                     : const NeverScrollableScrollPhysics(),
-                child: SelectableText(video?.description ?? "null description",
+                child: SelectableText(video?.video?.description ?? "null description",
                     style: Theme.of(context).textTheme.caption)),
           )
         ],

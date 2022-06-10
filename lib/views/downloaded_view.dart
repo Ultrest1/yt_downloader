@@ -15,10 +15,8 @@ class _DownloadedViewState extends State<DownloadedView> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemBuilder: (context, index) => Dismissible(
-        key: ValueKey(SearchedHolder.instance.getDownloadedVideoList[index].title),
+        key: ValueKey(SearchedHolder.instance.getDownloadedVideoList[index]?.video?.title),
         child: VideoPreview(
-          isDownloaded: false,
-          isStarted: false,
           onTap: () {},
           video: SearchedHolder.instance.getDownloadedVideoList[index],
         ),
