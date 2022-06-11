@@ -1,4 +1,4 @@
-import 'package:yt_downloader/product/video_model.dart';
+import 'video_model.dart';
 
 class VideoBucket {
   static VideoBucket? _instance;

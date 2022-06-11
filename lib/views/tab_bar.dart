@@ -4,7 +4,7 @@ import 'download_video_view.dart';
 import 'downloaded_view.dart';
 
 class TabView extends StatefulWidget {
-  TabView({Key? key}) : super(key: key);
+  const TabView({Key? key}) : super(key: key);
 
   @override
   State<TabView> createState() => _TabViewState();
@@ -22,7 +22,7 @@ class _TabViewState extends State<TabView> {
             Tab(icon: Icon(Icons.download_done)),
           ]),
         ),
-        body: TabBarView(children: [
+        body: const TabBarView(children: [
           DownloadVideo(),
           DownloadedView(),
         ]),

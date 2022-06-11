@@ -1,71 +1,83 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:yt_downloader/product/searched_handler.dart';
+
+import 'searched_handler.dart';
 
 class BaseVideoModel {
-  Video? video;
+  Video? videoRef;
   bool isDownloaded = false;
   double? progress;
   String? rootPath;
+  String? videoFileName;
+  String? descriptionName;
+  void Function(int count, int total)? onReceiveProgress;
   BaseVideoModel();
 
-  final Dio _dio = Dio();
   final _yt = YoutubeExplode();
-  StreamManifest? _manifest;
+  StreamManifest? manifest;
+  MuxedStreamInfo? streamInfo;
 
-  downloadVideoWithHighestBitRate() async {
-    if (video == null) {
-      return;
+  Future<bool> prepareToDownload() async {
+    if (videoRef == null) {
+      return false;
     }
-    _manifest = await _yt.videos.streams.getManifest(video?.id);
-    final streamInfo = _manifest?.muxed.withHighestBitrate();
+    manifest = await _yt.videos.streams.getManifest(videoRef?.id);
+    streamInfo = manifest?.muxed.withHighestBitrate();
     if (streamInfo == null) {
       throw Exception("Stream info not initialized yet");
     }
-    _yt.videos.streamsClient.get(streamInfo);
-    final filePath = await FilePicker.platform.getDirectoryPath();
-    if (filePath == null) return;
-    final videoFile =
-        File("$filePath\\${video?.title.replaceAll("|", " : ")}\\${video?.title.replaceAll("|", " ")}.mp4");
-    rootPath = "$filePath\\${video?.title.replaceAll("|", " : ")}";
-    log(rootPath ?? "null path");
+    if (streamInfo == null) return false;
+    _yt.videos.streamsClient.get(streamInfo!);
+    await _generatePathFile();
+    if (rootPath == null) return false;
 
-    await _dio.download(
-      streamInfo.url.toString(),
-      videoFile.path,
-      onReceiveProgress: (count, total) {
-        progress = ((count / total) * 100) / 100;
-        log(progress.toString());
-        if (count == total) {
-          log("Download finished");
-        }
-      },
-    );
-    if (video?.description != null) {
-      final descriptionFile = File("$filePath\\${video?.title.replaceAll("|", " : ")}\\description.txt");
-      descriptionFile.writeAsStringSync(video?.description ?? "");
-      log("description file created succesfully");
-    }
-
-    VideoBucket.instance.addDownloadedVideo(this);
-    VideoBucket.instance.removeFromDownloadedVideoWithVideo(this);
+    return true;
   }
 
-  makeSearch(String url, BuildContext context) async {
+  Future<String?> _generatePathFile() async {
+    final filePath = await FilePicker.platform.getDirectoryPath();
+    if (filePath == null) return "";
+    rootPath = "$filePath\\$fixTitle";
+
+    videoFileName = "$fixTitle.mp4";
+    descriptionName = "$rootPath\\description.txt";
+
+    return rootPath;
+  }
+
+  String? get fixTitle => videoRef?.title
+      .replaceAll("ü", "u")
+      .replaceAll("ğ", "g")
+      .replaceAll("ı", "i")
+      .replaceAll("ç", "c")
+      .replaceAll("ş", "s")
+      .replaceAll("Ü", "U")
+      .replaceAll("Ğ", "G")
+      .replaceAll("?", "")
+      .replaceAll("İ", "I")
+      .replaceAll("Ç", "C")
+      .replaceAll("Ş", "S")
+      .replaceAll(":", "")
+      .replaceAll("!", "");
+
+  Future<void> makeSearch(String url, BuildContext context) async {
+    bool isSearchedBefore = false;
     if (url == "") {
       _showSnackbar("Please enter valid url", context);
     } else if (!url.contains("youtube.com")) {
       _showSnackbar("Please enter valid url, Check youtube link", context);
     } else {
+      isSearchedBefore = checkSearchedBefore(url);
+      if (isSearchedBefore) return;
       try {
-        video = await _yt.videos.get(url);
+        videoRef = await _yt.videos.get(url);
         VideoBucket.instance.addVideoToSearched(this);
       } on SocketException catch (e) {
+        log("message: ${e.message}");
         _showSnackbar("Check your internet connection. Error: $e", context);
       }
       //setstate
@@ -75,4 +87,18 @@ class BaseVideoModel {
 
   void _showSnackbar(String message, BuildContext context) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+
+  bool checkSearchedBefore(String url) {
+    for (var element in VideoBucket.instance.getSearchedNotDownloadedVideoList) {
+      if (element?.videoRef?.url == url) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  String toString() {
+    return 'BaseVideoModel(videoRef: $videoRef, isDownloaded: $isDownloaded, progress: $progress, rootPath: $rootPath, onReceiveProgress: $onReceiveProgress)';
+  }
 }
