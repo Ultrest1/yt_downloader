@@ -1,26 +1,29 @@
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:yt_downloader/product/video_model.dart';
 
-class SearchedHolder {
-  static SearchedHolder? _instance;
-  static SearchedHolder get instance {
+class VideoBucket {
+  static VideoBucket? _instance;
+  static VideoBucket get instance {
     if (_instance != null) return _instance!;
-    _instance = SearchedHolder._init();
+    _instance = VideoBucket._init();
     return _instance!;
   }
 
-  late final List<BaseVideoModel?> _videoList;
+  late final List<BaseVideoModel?> _searchedNotDownloaded;
   late final List<BaseVideoModel?> _downloadedVideoList;
-  List<BaseVideoModel?> get getVideoList => _videoList;
+  List<BaseVideoModel?> get getSearchedNotDownloadedVideoList => _searchedNotDownloaded;
   List<BaseVideoModel?> get getDownloadedVideoList => _downloadedVideoList;
 
-  void addVideoToSearched(BaseVideoModel? video) => _videoList.add(video);
+  void addVideoToSearched(BaseVideoModel? video) => _searchedNotDownloaded.add(video);
   void addDownloadedVideo(BaseVideoModel? video) => _downloadedVideoList.add(video);
-  void removeVideoFromSearched(int index) => _videoList.removeAt(index);
-  void removeFromDownloadedVideo(int index) => _downloadedVideoList.removeAt(index);
 
-  SearchedHolder._init() {
-    _videoList = [];
+  void removeVideoFromSearched(int index) => _searchedNotDownloaded.removeAt(index);
+  void removeVideoFromSearchedWithVideo(BaseVideoModel video) => _searchedNotDownloaded.remove(video);
+
+  void removeFromDownloadedVideo(int index) => _downloadedVideoList.removeAt(index);
+  void removeFromDownloadedVideoWithVideo(BaseVideoModel video) => _downloadedVideoList.remove(video);
+
+  VideoBucket._init() {
+    _searchedNotDownloaded = [];
     _downloadedVideoList = [];
   }
 }

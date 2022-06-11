@@ -6,17 +6,24 @@ class VideoPreview extends StatelessWidget {
   VideoPreview({
     Key? key,
     required this.video,
+    required this.progressBarVal,
     required this.onTap,
   }) : super(key: key);
   final BaseVideoModel? video;
   VoidCallback? onTap;
+  double? progressBarVal;
 
   final download = "Download";
+  final nullVideo = "Null video";
+  final nullTitle = "Null title";
+  final author = "Author: ";
+  final duration = "Duration: ";
+  final viewCount = "View count: ";
 
   @override
   Widget build(BuildContext context) {
     if (video == null) {
-      return const Center(child: Text("Null video"));
+      return Center(child: Text(nullVideo));
     } else {
       switch (video?.isDownloaded) {
         case true:
@@ -37,10 +44,11 @@ class VideoPreview extends StatelessWidget {
         child: Row(
           children: [
             Expanded(flex: 5, child: videoThumbnail()),
+            VerticalDivider(thickness: 10),
             Expanded(
               flex: 20,
               child: Text(
-                video?.video?.title ?? "null title",
+                video?.video?.title ?? nullTitle,
                 style: Theme.of(context).textTheme.headline4,
               ),
             )
@@ -69,15 +77,15 @@ class VideoPreview extends StatelessWidget {
         child: Column(
       children: [
         videoThumbnail(),
-        Text("Author: ${video?.video?.author}"),
-        Text("View count: ${video?.video?.engagement.viewCount}"),
-        Text("Duration: ${video?.video?.duration?.inMinutes}:${video?.video?.duration?.inSeconds}"),
+        Text("$author ${video?.video?.author}"),
+        Text("$viewCount ${video?.video?.engagement.viewCount}"),
+        Text("$duration ${video?.video?.duration?.inMinutes}:${video?.video?.duration?.inSeconds}"),
         ElevatedButton(onPressed: onTap, child: Text(download)),
         const Divider(),
         video?.progress == null
-            ? SizedBox()
+            ? const SizedBox()
             : LinearProgressIndicator(
-                value: (video?.progress ?? 1) / 10,
+                value: (progressBarVal ?? 1),
               )
         // progress == ""
         //     ? const SizedBox()

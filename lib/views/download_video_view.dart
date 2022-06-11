@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -18,7 +19,7 @@ class DownloadVideo extends StatefulWidget {
 }
 
 class _DownloadVideoState extends State<DownloadVideo> {
-  List<Video?> videoList = [];
+  List<BaseVideoModel?> videoList = [];
 
   final textController = TextEditingController();
   String searchedBeforeURL = "";
@@ -37,7 +38,7 @@ class _DownloadVideoState extends State<DownloadVideo> {
   }
 
   Widget buildList() {
-    if (SearchedHolder.instance.getVideoList.length == 0) {
+    if (VideoBucket.instance.getSearchedNotDownloadedVideoList.length == 0) {
       return const Center(child: Text("No video yet"));
     } else {
       return Expanded(
@@ -45,26 +46,28 @@ class _DownloadVideoState extends State<DownloadVideo> {
           itemBuilder: (context, index) {
             return Dismissible(
               onDismissed: (direction) {
-                SearchedHolder.instance.getVideoList.removeAt(index);
+                VideoBucket.instance.getSearchedNotDownloadedVideoList.removeAt(index);
                 setState(() {});
               },
-              key: ValueKey("video: ${SearchedHolder.instance.getVideoList[index]?.video?.title}"),
+              key: ValueKey(
+                  "video: ${VideoBucket.instance.getSearchedNotDownloadedVideoList[index]?.video?.title}"),
               child: Column(
                 children: [
                   VideoPreview(
-                    video: SearchedHolder.instance.getVideoList[index],
+                    progressBarVal: VideoBucket.instance.getDownloadedVideoList[index]?.progress,
+                    video: VideoBucket.instance.getSearchedNotDownloadedVideoList[index],
                     onTap: () async {
-                      await downloadVideo(
-                        SearchedHolder.instance.getVideoList[index],
-                        index,
-                      );
+                      log("download starting");
+                      await VideoBucket.instance.getSearchedNotDownloadedVideoList[index]
+                          ?.downloadVideoWithHighestBitRate();
+                      setState(() {});
                     },
                   ),
                 ],
               ),
             );
           },
-          itemCount: SearchedHolder.instance.getVideoList.length,
+          itemCount: VideoBucket.instance.getSearchedNotDownloadedVideoList.length,
         ),
       );
     }
@@ -72,9 +75,12 @@ class _DownloadVideoState extends State<DownloadVideo> {
 
   Future<ListTile> listtile(int index) async {
     return ListTile(
-      leading: Image.network(SearchedHolder.instance.getVideoList[index]?.video?.thumbnails.highResUrl ?? ""),
-      title: Text(SearchedHolder.instance.getVideoList[index]?.video?.title ?? "null title"),
-      subtitle: Text(SearchedHolder.instance.getVideoList[index]?.video?.description ?? "null description"),
+      leading: Image.network(
+          VideoBucket.instance.getSearchedNotDownloadedVideoList[index]?.video?.thumbnails.highResUrl ?? ""),
+      title:
+          Text(VideoBucket.instance.getSearchedNotDownloadedVideoList[index]?.video?.title ?? "null title"),
+      subtitle: Text(VideoBucket.instance.getSearchedNotDownloadedVideoList[index]?.video?.description ??
+          "null description"),
       trailing: IconButton(onPressed: () async {}, icon: const Icon(Icons.download)),
     );
   }
@@ -86,32 +92,39 @@ class _DownloadVideoState extends State<DownloadVideo> {
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: TextField(
+                onSubmitted: (value) => searchYTVideo(textController.text, context),
                 controller: textController,
                 decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "www.youtube.com")),
           ),
         ),
         ElevatedButton(
-            onPressed: () => makeSearch(textController.text, context),
+            onPressed: () => searchYTVideo(textController.text, context),
             child: const Padding(padding: EdgeInsets.all(8), child: Text("Check Video")))
       ],
     );
   }
 
-  void makeSearch(String url, BuildContext context) async {
-    if (textController.text == "") {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter valid url")));
-    } else if (searchedBeforeURL != textController.text) {
-      final yt = YoutubeExplode();
-      final video = await yt.videos.get(textController.text);
-      searchedBeforeURL = textController.text;
-      SearchedHolder.instance.addVideoToSearched(BaseVideoModel(video));
-      textController.clear();
-      setState(() {});
-    } else if (SearchedHolder.instance.getVideoList.length == 0) {
-      searchedBeforeURL = "";
-      makeSearch(url, context);
-    }
+  // void makeSearch(String url, BuildContext context) async {
+  //   if (textController.text == "") {
+  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter valid url")));
+  //   } else if (searchedBeforeURL != textController.text) {
+  //     final yt = YoutubeExplode();
+  //     final video = await yt.videos.get(textController.text);
+  //     searchedBeforeURL = textController.text;
+  //     SearchedHolder.instance.addVideoToSearched(BaseVideoModel(video));
+  //     textController.clear();
+  //     setState(() {});
+  //   } else if (SearchedHolder.instance.getVideoList.length == 0) {
+  //     searchedBeforeURL = "";
+  //     makeSearch(url, context);
+  //   }
+  //   textController.clear();
+  // }
+  void searchYTVideo(String url, BuildContext context) async {
+    final newVideo = BaseVideoModel();
+    await newVideo.makeSearch(url, context);
     textController.clear();
+    setState(() {});
   }
 
   // Future downloadVideo(BaseVideoModel? video, int index) async {
@@ -147,7 +160,7 @@ class _DownloadVideoState extends State<DownloadVideo> {
     );
 
     video?.isDownloaded = true;
-    SearchedHolder.instance.addDownloadedVideo(video);
-    SearchedHolder.instance.removeVideoFromSearched(index);
+    VideoBucket.instance.addDownloadedVideo(video);
+    VideoBucket.instance.removeVideoFromSearched(index);
   }
 }

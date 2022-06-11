@@ -15,13 +15,13 @@ class _DownloadedViewState extends State<DownloadedView> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemBuilder: (context, index) => Dismissible(
-        key: ValueKey(SearchedHolder.instance.getDownloadedVideoList[index]?.video?.title),
+        key: ValueKey(VideoBucket.instance.getDownloadedVideoList[index]?.video?.title),
         child: VideoPreview(
           onTap: () {},
-          video: SearchedHolder.instance.getDownloadedVideoList[index],
+          video: VideoBucket.instance.getDownloadedVideoList[index],
         ),
       ),
-      itemCount: SearchedHolder.instance.getDownloadedVideoList.length,
+      itemCount: VideoBucket.instance.getDownloadedVideoList.length,
     );
   }
 }

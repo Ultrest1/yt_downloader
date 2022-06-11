@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride
 
 void main() {
   debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-  SearchedHolder.instance;
+  VideoBucket.instance;
   runApp(MyApp());
 }
 
