@@ -1,29 +1,35 @@
-import 'video_model.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'base_video_model.dart';
 
-class VideoBucket {
-  static VideoBucket? _instance;
-  static VideoBucket get instance {
+class VideoDownloadHsistory {
+  static VideoDownloadHsistory? _instance;
+  static VideoDownloadHsistory get instance {
     if (_instance != null) return _instance!;
-    _instance = VideoBucket._init();
+    _instance = VideoDownloadHsistory._init();
     return _instance!;
   }
 
-  late final List<BaseVideoModel?> _searchedNotDownloaded;
-  late final List<BaseVideoModel?> _downloadedVideoList;
-  List<BaseVideoModel?> get getSearchedNotDownloadedVideoList => _searchedNotDownloaded;
-  List<BaseVideoModel?> get getDownloadedVideoList => _downloadedVideoList;
+  late final List<BaseVideoModel?> _searchedVideo;
+  List<BaseVideoModel?> get getVideoList => _searchedVideo;
 
-  void addVideoToSearched(BaseVideoModel? video) => _searchedNotDownloaded.add(video);
-  void addDownloadedVideo(BaseVideoModel? video) => _downloadedVideoList.add(video);
+  void addVideoToHistory(BaseVideoModel? video) => _searchedVideo.add(video);
 
-  void removeVideoFromSearched(int index) => _searchedNotDownloaded.removeAt(index);
-  void removeVideoFromSearchedWithVideo(BaseVideoModel video) => _searchedNotDownloaded.remove(video);
+  void removeVideo(int index) => _searchedVideo.removeAt(index);
+  void removeVideoWithVideo(BaseVideoModel video) =>
+      _searchedVideo.remove(video);
 
-  void removeFromDownloadedVideo(int index) => _downloadedVideoList.removeAt(index);
-  void removeFromDownloadedVideoWithVideo(BaseVideoModel video) => _downloadedVideoList.remove(video);
+  VideoDownloadHsistory._init() {
+    _searchedVideo = [];
+  }
 
-  VideoBucket._init() {
-    _searchedNotDownloaded = [];
-    _downloadedVideoList = [];
+  generateListOfLinks() {
+    List<String> links = [];
+
+    for (var link in _searchedVideo) {
+      print(link.runtimeType);
+      if (link?.videoRef?.url != null && link?.videoRef?.url != "") {
+        links.add(link?.videoRef?.url ?? "");
+      }
+    }
   }
 }

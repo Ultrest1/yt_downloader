@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'video_model.dart';
+import 'base_video_model.dart';
 
 // ignore: must_be_immutable
 class VideoPreview extends StatelessWidget {
@@ -78,12 +78,13 @@ class VideoPreview extends StatelessWidget {
         videoThumbnail(),
         Text("$author ${video?.videoRef?.author}"),
         Text("$viewCount ${video?.videoRef?.engagement.viewCount}"),
-        Text("$duration ${video?.videoRef?.duration?.inMinutes}:${video?.videoRef?.duration?.inSeconds}"),
-        ElevatedButton(onPressed: onTap, child: Text(download)),
+        Text(
+            "$duration ${video?.videoRef?.duration?.inMinutes}:${video?.videoRef?.duration?.inSeconds}"),
         const Divider(),
         video?.progress == null
-            ? const SizedBox()
+            ? SizedBox()
             : LinearProgressIndicator(
+                minHeight: 10,
                 value: (video?.progress ?? 1),
               )
       ],
@@ -95,25 +96,49 @@ class VideoPreview extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Image.network(video?.videoRef?.thumbnails.highResUrl ?? "")));
+            child:
+                Image.network(video?.videoRef?.thumbnails.highResUrl ?? "")));
   }
 
   Expanded videoDetails(BuildContext context) {
     return Expanded(
       flex: 2,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(video?.videoRef?.title ?? "null title", style: Theme.of(context).textTheme.headline4),
+          Text(video?.videoRef?.title ?? "null title",
+              style: Theme.of(context).textTheme.headline4),
           const Divider(),
-          SizedBox(
-            height: (video?.videoRef!.description.length ?? 10) > 50 ? 250 : 100,
-            child: SingleChildScrollView(
-                physics: (video?.videoRef!.description.length ?? 10) > 50
-                    ? const AlwaysScrollableScrollPhysics()
-                    : const NeverScrollableScrollPhysics(),
-                child: SelectableText(video?.videoRef?.description ?? "null description",
-                    style: Theme.of(context).textTheme.caption)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                flex: 5,
+                child: SizedBox(
+                  height: (video?.videoRef!.description.length ?? 10) > 50
+                      ? 250
+                      : 100,
+                  child: SingleChildScrollView(
+                      physics: (video?.videoRef!.description.length ?? 10) > 50
+                          ? const AlwaysScrollableScrollPhysics()
+                          : const NeverScrollableScrollPhysics(),
+                      child: SelectableText(
+                          video?.videoRef?.description ?? "null description",
+                          style: Theme.of(context).textTheme.caption)),
+                ),
+              ),
+              Expanded(child: Icon(Icons.done))
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<String>(items: [
+                DropdownMenuItem(child: Text("720")),
+              ], onChanged: (val) {}),
+              ElevatedButton(onPressed: onTap, child: Text(download)),
+            ],
           )
         ],
       ),

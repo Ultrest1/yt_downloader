@@ -37,6 +37,8 @@ dependencies:
   youtube_explode_dart: ^1.11.0
   dio: ^4.0.6
   file_picker: ^4.6.1
+  permission_handler: ^10.0.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:
