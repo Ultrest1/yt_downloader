@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:path_provider/path_provider.dart';
-import 'package:yt_downloader/utils/local_database/user_db.dart';
+
+import 'user_db.dart';
 
 ///First Create,
 ///Then read to model,
@@ -29,7 +31,7 @@ class LocalDatabase {
     _databaseFile = File("$_directoryPath/$dbName");
     try {
       _userDB = UserDB.fromJson(_databaseFile?.readAsStringSync() ?? "");
-      print("Reading succesful");
+      log("Reading succesful");
     } on FileSystemException catch (e) {
       if (e.message == "Cannot open file") {
         _userDB = UserDB(
@@ -39,7 +41,7 @@ class LocalDatabase {
           isPermissionGranted: false,
         );
         _databaseFile?.writeAsStringSync(_userDB?.toJson() ?? "");
-        print("Creating succesful");
+        log("Creating succesful");
       }
     }
   }

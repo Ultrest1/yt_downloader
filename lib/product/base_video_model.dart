@@ -1,9 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+
 import 'searched_handler.dart';
 
 class BaseVideoModel {
@@ -15,7 +17,7 @@ class BaseVideoModel {
   String? videoFileName;
   String? selectedOptionSize;
   String? descriptionAdress;
-  videoStatus status = videoStatus.waiting;
+  VideoStatus status = VideoStatus.waiting;
   List<AvailableOption> options = [];
   AvailableOption? dropdownValue;
   BaseVideoModel(this.searchUrl) {
@@ -153,7 +155,7 @@ class AvailableOption {
   });
 }
 
-enum videoStatus {
+enum VideoStatus {
   waiting,
   downloading,
   done,

@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:yt_downloader/utils/local_database/local_database.dart';
-import 'package:yt_downloader/views/home_view.dart';
+
 import 'product/searched_handler.dart';
+import 'views/home_view.dart';
 
 Future<void> main() async {
   VideoDownloadHsistory.instance;
@@ -23,13 +21,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// Future<void> checkPermissions() async {
-//   if (await Permission.storage.isDenied) {
-//     final status = Permission.storage.request();
-//     final writePer = Permission.manageExternalStorage.request();
-//     final model = LocalDatabase.instance?.readFile();
-//     model?.isPermissionGranted = true;
-//     LocalDatabase.instance?.addData(model);
-//   }
-// }

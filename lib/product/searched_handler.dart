@@ -26,7 +26,6 @@ class VideoDownloadHsistory {
     List<String> links = [];
 
     for (var link in _searchedVideo) {
-      print(link.runtimeType);
       if (link?.videoRef?.url != null && link?.videoRef?.url != "") {
         links.add(link?.videoRef?.url ?? "");
       }

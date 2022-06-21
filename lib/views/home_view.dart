@@ -7,13 +7,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:yt_downloader/main.dart';
 import 'package:yt_downloader/product/video_preview.dart';
 import 'package:yt_downloader/utils/local_database/local_database.dart';
-import 'package:yt_downloader/utils/local_database/user_db.dart';
-import '../product/searched_handler.dart';
 
 import '../product/base_video_model.dart';
+import '../product/searched_handler.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -112,7 +110,7 @@ class _HomeViewState extends State<HomeView> {
       openFunc: () async {
         final Uri uri = Uri.file("${video?.rootPath}\\${video?.videoFileName}");
         if (await canLaunchUrlString(uri.path)) {
-          print("can launch");
+          log("can launch");
         }
         // await launchUrlString("${video?.rootPath}\\${video?.videoFileName}");
       },
@@ -154,7 +152,7 @@ class _HomeViewState extends State<HomeView> {
     if (isOkay == false) return;
 
     await checkPermission();
-    videoModel?.status = videoStatus.downloading;
+    videoModel?.status = VideoStatus.downloading;
     await dio.download(
       videoModel?.dropdownValue?.url?.toString() ?? "",
       "${videoModel?.rootPath}\\${videoModel?.videoFileName}",
@@ -174,7 +172,7 @@ class _HomeViewState extends State<HomeView> {
 
     if (videoModel == null) return;
     addDataToDB(videoModel.searchUrl);
-    videoModel.status = videoStatus.done;
+    videoModel.status = VideoStatus.done;
     setState(() {});
   }
 
