@@ -5,7 +5,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:yt_downloader/main.dart';
 import 'package:yt_downloader/product/video_preview.dart';
 import 'package:yt_downloader/utils/local_database/local_database.dart';
 import 'package:yt_downloader/utils/local_database/user_db.dart';
@@ -32,12 +34,11 @@ class _HomeViewState extends State<HomeView> {
   final String downloadText = "Download";
   final String nullDescrip = "null description";
   final String ytLink = "www.youtube.com";
-  late final LocalDatabase? dbInstance;
-  late final UserDB? db;
+  late final LocalDatabase? instanceDB;
 
   @override
   void initState() {
-    initDatabase();
+    initDB();
     super.initState();
   }
 
@@ -45,6 +46,7 @@ class _HomeViewState extends State<HomeView> {
   void dispose() {
     textController.dispose();
     textFieldNode.dispose();
+    instanceDB?.writeData();
     super.dispose();
   }
 
@@ -75,13 +77,13 @@ class _HomeViewState extends State<HomeView> {
           VideoDownloadHsistory.instance.getVideoList.length == 0
               ? const SizedBox()
               : const Divider(),
-          build2List(),
+          buildList(),
         ],
       ),
     );
   }
 
-  Widget build2List() {
+  Widget buildList() {
     if (VideoDownloadHsistory.instance.getVideoList.length == 0) {
       return Center(child: Text(noVideo));
     } else {
@@ -105,24 +107,11 @@ class _HomeViewState extends State<HomeView> {
       },
       openFunc: () async {
         final Uri uri = Uri.file("${video?.rootPath}\\${video?.videoFileName}");
-        await launchUrlString("${video?.rootPath}\\${video?.videoFileName}");
+        if (await canLaunchUrlString(uri.path)) {
+          print("can launch");
+        }
+        // await launchUrlString("${video?.rootPath}\\${video?.videoFileName}");
       },
-    );
-  }
-
-  Future<ListTile> listtile(int index) async {
-    return ListTile(
-      leading: Image.network(VideoDownloadHsistory
-              .instance.getVideoList[index]?.videoRef?.thumbnails.highResUrl ??
-          ""),
-      title: Text(
-          VideoDownloadHsistory.instance.getVideoList[index]?.videoRef?.title ??
-              nullTitle),
-      subtitle: Text(VideoDownloadHsistory
-              .instance.getVideoList[index]?.videoRef?.description ??
-          nullDescrip),
-      trailing:
-          IconButton(onPressed: () async {}, icon: const Icon(Icons.download)),
     );
   }
 
@@ -160,6 +149,8 @@ class _HomeViewState extends State<HomeView> {
     await videoModel?.generatePathFile();
     if (isOkay == false) return;
 
+    await checkPermission();
+    videoModel?.status = videoStatus.downloading;
     await dio.download(
       videoModel?.dropdownValue?.url?.toString() ?? "",
       "${videoModel?.rootPath}\\${videoModel?.videoFileName}",
@@ -178,7 +169,8 @@ class _HomeViewState extends State<HomeView> {
     }
 
     if (videoModel == null) return;
-    addDataToDB(videoModel?.searchUrl);
+    addDataToDB(videoModel.searchUrl);
+    videoModel.status = videoStatus.done;
     setState(() {});
   }
 
@@ -197,15 +189,20 @@ class _HomeViewState extends State<HomeView> {
     setState(() {});
   }
 
-  void initDatabase() {
-    dbInstance = LocalDatabase.instance;
-    db = dbInstance?.getDBModel;
+  addDataToDB(String? url) {
+    instanceDB?.getDBModel?.history?.add(url ?? "null url");
+    instanceDB?.writeData();
   }
 
-  addDataToDB(String? url) {
-    db?.history?.add(url ?? "");
-    dbInstance?.addData(db);
-    db = dbInstance?.readFile();
-  }
   //todo crud foor database
+  initDB() {
+    instanceDB = LocalDatabase.instance;
+  }
+
+  Future<void> checkPermission() async {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+  }
 }

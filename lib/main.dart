@@ -7,10 +7,7 @@ import 'product/searched_handler.dart';
 
 Future<void> main() async {
   VideoDownloadHsistory.instance;
-
-  // BasicPrefManager.instance;
   WidgetsFlutterBinding.ensureInitialized();
-  await checkIsDBCreatedOnce();
   runApp(const MyApp());
 }
 
@@ -27,24 +24,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<void> checkPermissions() async {
-  if (await Permission.storage.isDenied) {
-    final status = Permission.storage.request();
-    final writePer = Permission.manageExternalStorage.request();
-    final model = LocalDatabase.instance?.readFile();
-    model?.isPermissionGranted = true;
-    LocalDatabase.instance?.addData(model);
-  }
-}
-
-Future<void> checkIsDBCreatedOnce() async {
-  await Future.delayed(Duration(milliseconds: 500));
-
-  final model = LocalDatabase.instance?.readFile();
-  if (model == null) return;
-  if (model.isPermissionGranted ?? false) {
-    if (Platform.isAndroid || Platform.isIOS) {
-      checkPermissions();
-    }
-  }
-}
+// Future<void> checkPermissions() async {
+//   if (await Permission.storage.isDenied) {
+//     final status = Permission.storage.request();
+//     final writePer = Permission.manageExternalStorage.request();
+//     final model = LocalDatabase.instance?.readFile();
+//     model?.isPermissionGranted = true;
+//     LocalDatabase.instance?.addData(model);
+//   }
+// }

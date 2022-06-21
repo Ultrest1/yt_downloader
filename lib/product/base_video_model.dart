@@ -1,12 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-
 import 'searched_handler.dart';
 
 class BaseVideoModel {
@@ -17,6 +14,7 @@ class BaseVideoModel {
   String? rootPath;
   String? videoFileName;
   String? descriptionAdress;
+  videoStatus status = videoStatus.waiting;
   List<AvailableOption> options = [];
   AvailableOption? dropdownValue;
   BaseVideoModel(this.searchUrl) {
@@ -55,7 +53,7 @@ class BaseVideoModel {
     if (streamInfo == null) return false;
     // _yt.videos.streamsClient.get(streamInfo!);
     // await _generatePathFile();
-    if (rootPath == null) return false;
+    // if (rootPath == null) return false;
 
     return true;
   }
@@ -153,4 +151,10 @@ class AvailableOption {
     this.size,
     this.url,
   });
+}
+
+enum videoStatus {
+  waiting,
+  downloading,
+  done,
 }
