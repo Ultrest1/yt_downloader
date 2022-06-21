@@ -9,7 +9,7 @@ import 'utils/basic_pref_manager.dart';
 
 void main() {
   VideoDownloadHsistory.instance;
-  BasicPrefManager.instance;
+  // BasicPrefManager.instance;
   LocalDatabase.instance;
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid || Platform.isIOS) {
@@ -32,14 +32,12 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> checkPermissions() async {
-  final prefs = BasicPrefManager.instance;
+  final db = LocalDatabase.instance;
   if (await Permission.storage.isDenied) {
     final status = Permission.storage.request();
-    final writePermission = Permission.manageExternalStorage.request();
-
-    prefs?.writeBoolean(
-        UserPrefs.storagePermissionStatus, await status.isDenied);
-    prefs?.writeBoolean(
-        UserPrefs.writePermissionStatus, await writePermission.isDenied);
+    final writePer = Permission.manageExternalStorage.request();
+    final model = db?.readFile();
+    model?.isPermissionGranted = true;
+    db?.addData(model);
   }
 }

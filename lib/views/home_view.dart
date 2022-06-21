@@ -5,7 +5,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:yt_downloader/product/video_preview.dart';
 import 'package:yt_downloader/utils/local_database/local_database.dart';
+import 'package:yt_downloader/utils/local_database/user_db.dart';
 import '../product/searched_handler.dart';
 
 import '../product/base_video_model.dart';
@@ -30,6 +32,20 @@ class _HomeViewState extends State<HomeView> {
   final String nullDescrip = "null description";
   final String ytLink = "www.youtube.com";
   late final LocalDatabase? dbInstance;
+  late final UserDB? db;
+
+  @override
+  void initState() {
+    initDatabase();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    textFieldNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +72,7 @@ class _HomeViewState extends State<HomeView> {
         children: [
           // inputArea(),
           VideoDownloadHsistory.instance.getVideoList.length == 0
-              ? SizedBox()
+              ? const SizedBox()
               : const Divider(),
           build2List(),
         ],
@@ -72,107 +88,20 @@ class _HomeViewState extends State<HomeView> {
           child: ListView.builder(
         itemBuilder: (context, index) {
           final video = VideoDownloadHsistory.instance.getVideoList[index];
-          return Card(
-            child: Dismissible(
-                onDismissed: (direction) {
-                  VideoDownloadHsistory.instance.getVideoList.removeAt(index);
-                  setState(() {});
-                },
-                key: ValueKey("video: ${video?.videoRef?.title}"),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                            flex: 5,
-                            child: Image.network(
-                                video?.videoRef?.thumbnails.mediumResUrl ??
-                                    "")),
-                        Expanded(
-                            flex: 6,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(video?.videoRef?.title ?? nullTitle,
-                                    style:
-                                        Theme.of(context).textTheme.titleSmall,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.clip),
-                                Text(
-                                  video?.videoRef?.author ?? nullAuthor,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.clip,
-                                ),
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    video != null
-                                        ? video.toDropDown(
-                                            onChanged: (p0) {
-                                              video.dropdownValue =
-                                                  p0 as AvailableOption;
-
-                                              setState(() {});
-                                            },
-                                          )
-                                        : const SizedBox(),
-                                    video?.isDownloaded != null
-                                        ? video!.isDownloaded
-                                            ? ElevatedButton(
-                                                onPressed: () {},
-                                                child: Text(openText))
-                                            : ElevatedButton(
-                                                onPressed: () {
-                                                  downloadvid(
-                                                      VideoDownloadHsistory
-                                                          .instance
-                                                          .getVideoList[index]);
-                                                  setState(() {
-                                                    //todo asdasdas
-                                                  });
-                                                },
-                                                child: Text(downloadText))
-                                        : ElevatedButton(
-                                            onPressed: () {
-                                              downloadvid(VideoDownloadHsistory
-                                                  .instance
-                                                  .getVideoList[index]);
-                                              setState(() {});
-                                            },
-                                            child: Text(downloadText))
-                                  ],
-                                )
-                              ],
-                            )),
-                      ],
-                    ),
-                    video?.progress != null
-                        ? Row(
-                            children: [
-                              Expanded(
-                                  flex: 9,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: LinearProgressIndicator(
-                                        value: video?.progress),
-                                  )),
-                              Expanded(
-                                  child: Text(
-                                      "${((video?.progress ?? 0) * 100).toStringAsFixed(1)}%"))
-                            ],
-                          )
-                        : const SizedBox()
-                  ],
-                )),
-          );
+          return videoCard(index, video, context);
         },
         itemCount: VideoDownloadHsistory.instance.getVideoList.length,
       ));
     }
+  }
+
+  VideoCard videoCard(int index, BaseVideoModel? video, BuildContext context) {
+    return VideoCard(
+        videoModel: video ?? BaseVideoModel(""),
+        downloadVidFunc: () {
+          downloadvid(VideoDownloadHsistory.instance.getVideoList[index]);
+          setState(() {});
+        });
   }
 
   Future<ListTile> listtile(int index) async {
@@ -263,8 +192,14 @@ class _HomeViewState extends State<HomeView> {
 
   void initDatabase() {
     dbInstance = LocalDatabase.instance;
+    db = dbInstance?.readFile();
   }
 
-  addDataToDB() {}
+  addDataToDB() {
+    db?.history?.add(textController.text);
+    dbInstance?.addData(db);
+    db = dbInstance?.readFile();
+    setState(() {});
+  }
   //todo crud foor database
 }

@@ -1,38 +1,43 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class UserDB {
   String? name;
   String? description;
-  List<String> url;
-  UserDB({required this.name, required this.description, required this.url}) {
-    name = name;
-    description = description;
-  }
+  List<String>? history;
+  bool? isPermissionGranted;
+  UserDB({
+    this.name,
+    this.description,
+    this.history,
+    this.isPermissionGranted,
+  });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'name': name,
       'description': description,
-      'url': url,
+      'history': history,
+      'isPermissionGranted': isPermissionGranted,
     };
   }
 
   factory UserDB.fromMap(Map<String, dynamic> map) {
     return UserDB(
-        name: map['name'] != null ? map['name'] as String : null,
-        description:
-            map['description'] != null ? map['description'] as String : null,
-        url: List<String>.from(
-          (map['url']),
-        ));
+      name: map['name'] != null ? map['name'] as String : null,
+      description:
+          map['description'] != null ? map['description'] as String : null,
+      history: map['history'] != null
+          ? List<String>.from((map['history'] as List<String>))
+          : null,
+      isPermissionGranted: map['isPermissionGranted'] != null
+          ? map['isPermissionGranted'] as bool
+          : null,
+    );
   }
 
   String toJson() => json.encode(toMap());
 
   factory UserDB.fromJson(String source) =>
       UserDB.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() =>
-      'Model(name: $name, description: $description, url: $url)';
 }

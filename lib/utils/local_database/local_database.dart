@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:yt_downloader/utils/local_database/user_db.dart';
 
 ///First Create,
@@ -13,19 +14,28 @@ class LocalDatabase {
   }
 
   late final File _database;
-  late final String databasePath;
+  late final String _directoryPath;
   LocalDatabase._init() {
-    _database = createFile();
-    databasePath = _database.path;
+    _createDir();
   }
   File createFile() {
-    final model = UserDB(name: "Unkown", description: "Unkown", url: []);
-    final file = File("database.json");
-    file.writeAsStringSync(model.toJson());
+    final localUserDB = UserDB(
+        name: "Unkown",
+        description: "Unkown",
+        history: [],
+        isPermissionGranted: false);
+    final file = File("$_directoryPath/local_db.json");
+    file.writeAsStringSync(localUserDB.toJson());
     return file;
   }
 
-  UserDB readFile() => UserDB.fromJson(_database.readAsStringSync());
+  Future<void> _createDir() async {
+    final dir = await getApplicationDocumentsDirectory();
+    _directoryPath = dir.path;
+    _database = createFile();
+  }
+
+  UserDB? readFile() => UserDB.fromJson(_database.readAsStringSync());
 
   void addData(UserDB? model) =>
       _database.writeAsStringSync(model?.toJson() ?? "");
