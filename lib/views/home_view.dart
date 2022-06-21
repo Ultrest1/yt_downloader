@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:yt_downloader/product/video_preview.dart';
 import 'package:yt_downloader/utils/local_database/local_database.dart';
 import 'package:yt_downloader/utils/local_database/user_db.dart';
@@ -97,11 +98,16 @@ class _HomeViewState extends State<HomeView> {
 
   VideoCard videoCard(int index, BaseVideoModel? video, BuildContext context) {
     return VideoCard(
-        videoModel: video ?? BaseVideoModel(""),
-        downloadVidFunc: () {
-          downloadvid(VideoDownloadHsistory.instance.getVideoList[index]);
-          setState(() {});
-        });
+      videoModel: video ?? BaseVideoModel(""),
+      downloadVidFunc: () async {
+        await downloadvid(VideoDownloadHsistory.instance.getVideoList[index]);
+        setState(() {});
+      },
+      openFunc: () async {
+        final Uri uri = Uri.file("${video?.rootPath}\\${video?.videoFileName}");
+        await launchUrlString("${video?.rootPath}\\${video?.videoFileName}");
+      },
+    );
   }
 
   Future<ListTile> listtile(int index) async {
@@ -151,7 +157,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> downloadvid(BaseVideoModel? videoModel) async {
     final dio = Dio();
     final isOkay = await videoModel?.prepareToDownload();
-    videoModel?.generatePathFile();
+    await videoModel?.generatePathFile();
     if (isOkay == false) return;
 
     await dio.download(
@@ -172,6 +178,7 @@ class _HomeViewState extends State<HomeView> {
     }
 
     if (videoModel == null) return;
+    addDataToDB(videoModel?.searchUrl);
     setState(() {});
   }
 
@@ -192,14 +199,13 @@ class _HomeViewState extends State<HomeView> {
 
   void initDatabase() {
     dbInstance = LocalDatabase.instance;
-    db = dbInstance?.readFile();
+    db = dbInstance?.getDBModel;
   }
 
-  addDataToDB() {
-    db?.history?.add(textController.text);
+  addDataToDB(String? url) {
+    db?.history?.add(url ?? "");
     dbInstance?.addData(db);
     db = dbInstance?.readFile();
-    setState(() {});
   }
   //todo crud foor database
 }

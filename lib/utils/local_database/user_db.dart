@@ -27,9 +27,8 @@ class UserDB {
       name: map['name'] != null ? map['name'] as String : null,
       description:
           map['description'] != null ? map['description'] as String : null,
-      history: map['history'] != null
-          ? List<String>.from((map['history'] as List<String>))
-          : null,
+      history:
+          map['history'] != null ? List<String>.from((map['history'])) : null,
       isPermissionGranted: map['isPermissionGranted'] != null
           ? map['isPermissionGranted'] as bool
           : null,
@@ -38,6 +37,10 @@ class UserDB {
 
   String toJson() => json.encode(toMap());
 
-  factory UserDB.fromJson(String source) =>
-      UserDB.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory UserDB.fromJson(String source) {
+    if (source != "") {
+      return UserDB.fromMap(json.decode(source) as Map<String, dynamic>);
+    }
+    return UserDB();
+  }
 }
