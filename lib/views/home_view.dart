@@ -53,20 +53,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: TextField(
-          onSubmitted: (value) => searchYTVideo(textController.text, context),
-          controller: textController,
-          decoration: InputDecoration(
-              hintText: hintText, border: const UnderlineInputBorder()),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () => searchYTVideo(textController.text, context),
-              icon: const Icon(Icons.search))
-        ],
-      ),
+      appBar: appBar(context),
       body: Column(
         mainAxisAlignment:
             VideoDownloadHsistory.instance.getVideoList.length == 0
@@ -80,6 +67,23 @@ class _HomeViewState extends State<HomeView> {
           buildList(),
         ],
       ),
+    );
+  }
+
+  AppBar appBar(BuildContext context) {
+    return AppBar(
+      elevation: 0,
+      title: TextField(
+        onSubmitted: (value) => searchYTVideo(textController.text, context),
+        controller: textController,
+        decoration: InputDecoration(
+            hintText: hintText, border: const UnderlineInputBorder()),
+      ),
+      actions: [
+        IconButton(
+            onPressed: () => searchYTVideo(textController.text, context),
+            icon: const Icon(Icons.search))
+      ],
     );
   }
 

@@ -27,13 +27,21 @@ class VideoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Dismissible(
-        key: ValueKey("video: ${videoModel.videoRef?.title}"),
-        onDismissed: (direction) {
-          VideoDownloadHsistory.instance.removeVideoWithVideo(videoModel);
-        },
-        child: baseColumn(context),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 10,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Dismissible(
+            key: ValueKey("video: ${videoModel.videoRef?.title}"),
+            onDismissed: (direction) {
+              VideoDownloadHsistory.instance.removeVideoWithVideo(videoModel);
+            },
+            child: baseColumn(context),
+          ),
+        ),
       ),
     );
   }
@@ -43,6 +51,13 @@ class VideoCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         videoContent(context),
+        videoModel.isDownloaded != null
+            ? videoModel.isDownloaded
+                ? ElevatedButton(onPressed: openFunc, child: Text(openText))
+                : ElevatedButton(
+                    onPressed: downloadVidFunc, child: Text(downloadText))
+            : ElevatedButton(
+                onPressed: downloadVidFunc, child: Text(downloadText)),
         videoModel.progress != null ? indicators() : const SizedBox()
       ],
     );
@@ -54,47 +69,47 @@ class VideoCard extends StatelessWidget {
       children: [
         Expanded(
             flex: 5,
-            child: Image.network(
-                videoModel.videoRef?.thumbnails.mediumResUrl ?? "")),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                    videoModel.videoRef?.thumbnails.mediumResUrl ?? ""),
+              ),
+            )),
         Expanded(
-            flex: 6,
+          flex: 6,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(videoModel.videoRef?.title ?? nullTitle,
                     style: Theme.of(context).textTheme.titleSmall,
                     maxLines: 3,
-                    overflow: TextOverflow.clip),
+                    overflow: TextOverflow.ellipsis),
                 Text(
                   videoModel.videoRef?.author ?? nullAuthor,
                   style: Theme.of(context).textTheme.bodySmall,
                   maxLines: 1,
-                  overflow: TextOverflow.clip,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    videoModel != null
-                        ? videoModel.toDropDown(
-                            onChanged: (p0) {
-                              videoModel.dropdownValue = p0 as AvailableOption;
+                videoModel != null
+                    ? Row(
+                        children: [
+                          videoModel.toDropDown(
+                            onChanged: (option) {
+                              videoModel.dropdownValue = option;
                             },
-                          )
-                        : const SizedBox(),
-                    videoModel.isDownloaded != null
-                        ? videoModel.isDownloaded
-                            ? ElevatedButton(
-                                onPressed: openFunc, child: Text(openText))
-                            : ElevatedButton(
-                                onPressed: downloadVidFunc,
-                                child: Text(downloadText))
-                        : ElevatedButton(
-                            onPressed: downloadVidFunc,
-                            child: Text(downloadText))
-                  ],
-                )
+                          ),
+                          Text("${videoModel.selectedOptionSize} mb")
+                        ],
+                      )
+                    : const SizedBox(),
               ],
-            )),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -103,7 +118,7 @@ class VideoCard extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-            flex: 9,
+            flex: 6,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: LinearProgressIndicator(value: videoModel.progress),

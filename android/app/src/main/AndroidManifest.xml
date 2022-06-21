@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.yt_downloader">
+    package="com.ruchansofdev.yt_downloader">
 <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -7,7 +7,7 @@
 <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.ACTION_MANAGE_WRITE_SETTINGS" />
    <application
-        android:label="yt_downloader"
+        android:label="Youtube Downloader"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">

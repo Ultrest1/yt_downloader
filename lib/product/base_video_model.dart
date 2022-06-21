@@ -13,6 +13,7 @@ class BaseVideoModel {
   double? progress;
   String? rootPath;
   String? videoFileName;
+  String? selectedOptionSize;
   String? descriptionAdress;
   videoStatus status = videoStatus.waiting;
   List<AvailableOption> options = [];
@@ -59,21 +60,20 @@ class BaseVideoModel {
   }
 
   Widget toDropDown({required void Function(AvailableOption?)? onChanged}) {
-    return DropdownButtonFormField(
+    return DropdownButton(
         alignment: Alignment.center,
         borderRadius: BorderRadius.circular(20),
         value: dropdownValue,
-        items: options
-            .map((e) => DropdownMenuItem(
-                value: e,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("${e.qualityLabel}|"),
-                    Text("${e.size?.toStringAsFixed(2)} mb"),
-                  ],
-                )))
-            .toList(),
+        items: options.map((e) {
+          selectedOptionSize = e.size?.toStringAsFixed(2);
+          return DropdownMenuItem(
+              value: e,
+              child: Row(
+                children: [
+                  Text("${e.qualityLabel} "),
+                ],
+              ));
+        }).toList(),
         onChanged: onChanged);
   }
 
