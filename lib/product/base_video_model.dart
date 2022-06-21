@@ -27,27 +27,6 @@ class BaseVideoModel {
   StreamManifest? manifest;
   VideoStreamInfo? streamInfo;
 
-  // Future<void> makeSearch(String url) async {
-  //   bool isSearchedBefore = false;
-  //   if (url == "") {
-  //     // _showSnackbar("Please enter valid url", context);
-  //   } else if (!url.contains("youtube.com")) {
-  //     // _showSnackbar("Please enter valid url, Check youtube link", context);
-  //   } else {
-  //     isSearchedBefore = checkSearchedBefore(url);
-  //     if (isSearchedBefore) return;
-  //     try {
-  //       videoRef = await _yt.videos.get(url);
-  //       VideoDownloadHsistory.instance.addVideoToHistory(this);
-  //     } on SocketException catch (e) {
-  //       log("message: ${e.message}");
-  //       // _showSnackbar("Check your internet connection. Error: $e", context);
-  //     }
-  //     //setstate
-  //   }
-  //   //controller clear
-  // }
-
   void getQualities() {}
 
   Future<bool> prepareToDownload() async {

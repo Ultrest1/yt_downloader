@@ -1,10 +1,12 @@
+// ignore_for_file: prefer_is_empty
+
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:yt_downloader/utils/local_database/local_database.dart';
 import '../product/searched_handler.dart';
-import '../product/video_preview.dart';
 
 import '../product/base_video_model.dart';
 
@@ -17,7 +19,17 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final textController = TextEditingController();
-  String searchedBeforeURL = "";
+  final textFieldNode = FocusNode();
+  final String searchedBeforeURL = "";
+  final String hintText = "search.. www.youtube.com";
+  final String noVideo = "No video yet";
+  final String nullTitle = "Null title";
+  final String nullAuthor = "null author";
+  final String openText = "Open";
+  final String downloadText = "Download";
+  final String nullDescrip = "null description";
+  final String ytLink = "www.youtube.com";
+  late final LocalDatabase? dbInstance;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +40,7 @@ class _HomeViewState extends State<HomeView> {
           onSubmitted: (value) => searchYTVideo(textController.text, context),
           controller: textController,
           decoration: InputDecoration(
-              hintText: "search.. www.youtube.com",
-              border: UnderlineInputBorder()),
+              hintText: hintText, border: const UnderlineInputBorder()),
         ),
         actions: [
           IconButton(
@@ -55,7 +66,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget build2List() {
     if (VideoDownloadHsistory.instance.getVideoList.length == 0) {
-      return const Center(child: Text("No video yet"));
+      return Center(child: Text(noVideo));
     } else {
       return Expanded(
           child: ListView.builder(
@@ -84,13 +95,13 @@ class _HomeViewState extends State<HomeView> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(video?.videoRef?.title ?? "Null title",
+                                Text(video?.videoRef?.title ?? nullTitle,
                                     style:
                                         Theme.of(context).textTheme.titleSmall,
                                     maxLines: 3,
                                     overflow: TextOverflow.clip),
                                 Text(
-                                  video?.videoRef?.author ?? "null author",
+                                  video?.videoRef?.author ?? nullAuthor,
                                   style: Theme.of(context).textTheme.bodySmall,
                                   maxLines: 1,
                                   overflow: TextOverflow.clip,
@@ -104,26 +115,27 @@ class _HomeViewState extends State<HomeView> {
                                             onChanged: (p0) {
                                               video.dropdownValue =
                                                   p0 as AvailableOption;
-                                              print(
-                                                  "current val: ${video.dropdownValue?.qualityLabel}");
+
                                               setState(() {});
                                             },
                                           )
-                                        : SizedBox(),
+                                        : const SizedBox(),
                                     video?.isDownloaded != null
                                         ? video!.isDownloaded
                                             ? ElevatedButton(
                                                 onPressed: () {},
-                                                child: Text("Open"))
+                                                child: Text(openText))
                                             : ElevatedButton(
                                                 onPressed: () {
                                                   downloadvid(
                                                       VideoDownloadHsistory
                                                           .instance
                                                           .getVideoList[index]);
-                                                  setState(() {});
+                                                  setState(() {
+                                                    //todo asdasdas
+                                                  });
                                                 },
-                                                child: Text("Download"))
+                                                child: Text(downloadText))
                                         : ElevatedButton(
                                             onPressed: () {
                                               downloadvid(VideoDownloadHsistory
@@ -131,7 +143,7 @@ class _HomeViewState extends State<HomeView> {
                                                   .getVideoList[index]);
                                               setState(() {});
                                             },
-                                            child: Text("Download"))
+                                            child: Text(downloadText))
                                   ],
                                 )
                               ],
@@ -170,10 +182,10 @@ class _HomeViewState extends State<HomeView> {
           ""),
       title: Text(
           VideoDownloadHsistory.instance.getVideoList[index]?.videoRef?.title ??
-              "null title"),
+              nullTitle),
       subtitle: Text(VideoDownloadHsistory
               .instance.getVideoList[index]?.videoRef?.description ??
-          "null description"),
+          nullDescrip),
       trailing:
           IconButton(onPressed: () async {}, icon: const Icon(Icons.download)),
     );
@@ -197,7 +209,7 @@ class _HomeViewState extends State<HomeView> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    hintText: "www.youtube.com")),
+                    hintText: ytLink)),
           ),
         ),
         IconButton(
@@ -245,8 +257,14 @@ class _HomeViewState extends State<HomeView> {
     await newVideo.makeSearch(url, context);
     await newVideo.prepareToDownload();
     textController.clear();
+    textFieldNode.unfocus();
     setState(() {});
   }
-}
 
-enum SearchState { neutral, waiting, done }
+  void initDatabase() {
+    dbInstance = LocalDatabase.instance;
+  }
+
+  addDataToDB() {}
+  //todo crud foor database
+}

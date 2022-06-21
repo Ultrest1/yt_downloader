@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:yt_downloader/utils/local_database/local_database.dart';
 import 'package:yt_downloader/utils/user_pref.dart';
 import 'package:yt_downloader/views/home_view.dart';
 import 'product/searched_handler.dart';
@@ -9,6 +10,7 @@ import 'utils/basic_pref_manager.dart';
 void main() {
   VideoDownloadHsistory.instance;
   BasicPrefManager.instance;
+  LocalDatabase.instance;
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid || Platform.isIOS) {
     checkPermissions();
