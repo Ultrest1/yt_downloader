@@ -1,4 +1,4 @@
-package com.example.yt_downloader
+package com.ruchansoftdev.yt_downloader
 
 import io.flutter.embedding.android.FlutterActivity
 

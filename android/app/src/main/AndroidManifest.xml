@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.yt_downloader">
+    package="com.ruchansoftdev.yt_downloader">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="yt_downloader"
+        android:label="Youtube Downloader"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
