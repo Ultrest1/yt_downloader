@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:yt_downloader/product/video_preview.dart';
 import 'package:yt_downloader/utils/local_database/local_database.dart';
@@ -51,18 +52,23 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context),
-      body: Column(
-        mainAxisAlignment:
+      body: GestureDetector(
+        onTap: () {
+          textFieldNode.unfocus();
+        },
+        child: Column(
+          mainAxisAlignment:
+              VideoDownloadHsistory.instance.getVideoList.length == 0
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.start,
+          children: [
+            // inputArea(),
             VideoDownloadHsistory.instance.getVideoList.length == 0
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.start,
-        children: [
-          // inputArea(),
-          VideoDownloadHsistory.instance.getVideoList.length == 0
-              ? const SizedBox()
-              : const Divider(),
-          buildList(),
-        ],
+                ? const SizedBox()
+                : const Divider(),
+            buildList(),
+          ],
+        ),
       ),
     );
   }
@@ -73,6 +79,8 @@ class _HomeViewState extends State<HomeView> {
       title: TextField(
         onSubmitted: (value) => searchYTVideo(textController.text, context),
         controller: textController,
+        cursorColor: Colors.red,
+        cursorHeight: 20,
         decoration: InputDecoration(
             hintText: hintText, border: const UnderlineInputBorder()),
       ),
@@ -91,8 +99,16 @@ class _HomeViewState extends State<HomeView> {
       return Expanded(
           child: ListView.builder(
         itemBuilder: (context, index) {
-          final video = VideoDownloadHsistory.instance.getVideoList[index];
-          return videoCard(index, video, context);
+          final video = VideoDownloadHsistory.instance.getVideoList.reversed
+              .toList()[index];
+          return Dismissible(
+            key: ValueKey("video: ${video?.videoRef?.title}"),
+            onDismissed: (direction) {
+              VideoDownloadHsistory.instance.removeVideoWithVideo(video!);
+              setState(() {});
+            },
+            child: videoCard(index, video, context),
+          );
         },
         itemCount: VideoDownloadHsistory.instance.getVideoList.length,
       ));
@@ -110,7 +126,9 @@ class _HomeViewState extends State<HomeView> {
         video?.dropdownValue = p;
         setState(() {});
       },
-      openFunc: () {},
+      openFunc: () {
+        openFile(video);
+      },
     );
   }
 
@@ -152,18 +170,23 @@ class _HomeViewState extends State<HomeView> {
     if (isOkay == false) return;
 
     videoModel?.status = VideoStatus.downloading;
-    await dio.download(
-      videoModel?.dropdownValue?.url?.toString() ?? "",
-      "${videoModel?.rootPath}/${videoModel?.videoFileName}",
-      onReceiveProgress: (count, total) {
-        setState(() {
-          videoModel?.progress = (((count / total) * 10) / 10);
-        });
-        if (videoModel?.progress == 1) {
-          videoModel?.isDownloaded = true;
-        }
-      },
-    );
+    try {
+      await dio.download(
+        videoModel?.dropdownValue?.url?.toString() ?? "",
+        "${videoModel?.rootPath}/${videoModel?.videoFileName}",
+        onReceiveProgress: (count, total) {
+          setState(() {
+            videoModel?.progress = (((count / total) * 10) / 10);
+          });
+          if (videoModel?.progress == 1) {
+            videoModel?.isDownloaded = true;
+          }
+        },
+      );
+    } on DioError catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("${e.error}")));
+    }
 
     if (videoModel?.videoRef?.description != null) {
       createDescription(videoModel);
@@ -172,6 +195,8 @@ class _HomeViewState extends State<HomeView> {
     if (videoModel == null) return;
     addDataToDB(videoModel.searchUrl);
     videoModel.status = VideoStatus.done;
+    dio.close();
+
     setState(() {});
   }
 
@@ -183,10 +208,11 @@ class _HomeViewState extends State<HomeView> {
 
   void searchYTVideo(String url, BuildContext context) async {
     final newVideo = BaseVideoModel(url);
-    await newVideo.makeSearch(url, context);
-    await newVideo.prepareToDownload();
     textController.clear();
     textFieldNode.unfocus();
+    await newVideo.makeSearch(url, context);
+    await newVideo.prepareToDownload();
+
     setState(() {});
   }
 
@@ -207,4 +233,6 @@ class _HomeViewState extends State<HomeView> {
       await Permission.storage.request();
     }
   }
+
+  Future<void> openFile(BaseVideoModel? videoModel) async {}
 }

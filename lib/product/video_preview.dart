@@ -29,21 +29,14 @@ class VideoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: ValueKey("video: ${videoModel.videoRef?.title}"),
-      onDismissed: (direction) {
-        VideoDownloadHsistory.instance.removeVideoWithVideo(videoModel);
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 10,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: baseColumn(context),
-          ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 10,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: baseColumn(context),
         ),
       ),
     );
@@ -70,16 +63,16 @@ class VideoCard extends StatelessWidget {
       } else {
         return ElevatedButton(
             onPressed: downloadVidFunc,
-            child: Text(downloadText),
             style: ButtonStyle(
-                shape: MaterialStateProperty.all(const StadiumBorder())));
+                shape: MaterialStateProperty.all(const StadiumBorder())),
+            child: Text(downloadText));
       }
     } else {
       return ElevatedButton(
           onPressed: downloadVidFunc,
-          child: Text(downloadText),
           style: ButtonStyle(
-              shape: MaterialStateProperty.all(const StadiumBorder())));
+              shape: MaterialStateProperty.all(const StadiumBorder())),
+          child: Text(downloadText));
     }
   }
 
@@ -91,45 +84,41 @@ class VideoCard extends StatelessWidget {
   }
 
   Widget videoContent(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.41,
-      child: Column(
-        children: [
-          Expanded(
-            flex: 2,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.network(
-                videoModel.videoRef?.thumbnails.mediumResUrl ?? "",
-                fit: BoxFit.cover,
-              ),
-            ),
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Image.network(
+            videoModel.videoRef?.thumbnails.mediumResUrl ?? "",
+            fit: BoxFit.fitWidth,
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  titleText(context),
-                  authorText(context),
-                  videoModel != null
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            videoModel.toDropDown(
-                              onChanged: dropdown,
-                            ),
-                            downloadBTN(context)
-                          ],
-                        )
-                      : const SizedBox(),
-                ],
-              ),
-            ),
+        ),
+        const Divider(),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              titleText(context),
+              authorText(context),
+              videoModel != null
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        videoModel.toDropDown(
+                          onChanged: dropdown,
+                        ),
+                        downloadBTN(context)
+                      ],
+                    )
+                  : const SizedBox(),
+              // Container(
+              //   child: Icon(Icons.add),
+              // )
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
