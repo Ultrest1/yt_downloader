@@ -107,6 +107,10 @@ class _HomeViewState extends State<HomeView> {
         await downloadvid(VideoDownloadHsistory.instance.getVideoList[index]);
         setState(() {});
       },
+      dropdown: (p) {
+        video?.dropdownValue = p;
+        setState(() {});
+      },
       openFunc: () async {
         final Uri uri = Uri.file("${video?.rootPath}\\${video?.videoFileName}");
         if (await canLaunchUrlString(uri.path)) {
@@ -204,6 +208,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> checkPermission() async {
     var status = await Permission.storage.status;
     if (!status.isGranted) {
+      await Permission.manageExternalStorage.request();
       await Permission.storage.request();
     }
   }

@@ -9,11 +9,13 @@ class VideoCard extends StatelessWidget {
       {Key? key,
       required this.videoModel,
       required this.downloadVidFunc,
+      required this.dropdown,
       required this.openFunc})
       : super(key: key);
   BaseVideoModel videoModel;
   void Function()? downloadVidFunc;
   void Function()? openFunc;
+  void Function(AvailableOption?)? dropdown;
   // void Function()? onPressed;
   final String searchedBeforeURL = "";
   final String hintText = "search.. www.youtube.com";
@@ -98,9 +100,7 @@ class VideoCard extends StatelessWidget {
                     ? Row(
                         children: [
                           videoModel.toDropDown(
-                            onChanged: (option) {
-                              videoModel.dropdownValue = option;
-                            },
+                            onChanged: dropdown,
                           ),
                           Text("${videoModel.selectedOptionSize} mb")
                         ],
