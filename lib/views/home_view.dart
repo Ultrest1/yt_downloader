@@ -145,16 +145,16 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> downloadvid(BaseVideoModel? videoModel) async {
+    await checkPermission();
     final dio = Dio();
     final isOkay = await videoModel?.prepareToDownload();
     await videoModel?.generatePathFile();
     if (isOkay == false) return;
 
-    await checkPermission();
     videoModel?.status = VideoStatus.downloading;
     await dio.download(
       videoModel?.dropdownValue?.url?.toString() ?? "",
-      "${videoModel?.rootPath}\\${videoModel?.videoFileName}",
+      "${videoModel?.rootPath}/${videoModel?.videoFileName}",
       onReceiveProgress: (count, total) {
         setState(() {
           videoModel?.progress = (((count / total) * 10) / 10);

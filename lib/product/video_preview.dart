@@ -29,18 +29,19 @@ class VideoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Dismissible(
-            key: ValueKey("video: ${videoModel.videoRef?.title}"),
-            onDismissed: (direction) {
-              VideoDownloadHsistory.instance.removeVideoWithVideo(videoModel);
-            },
+    return Dismissible(
+      key: ValueKey("video: ${videoModel.videoRef?.title}"),
+      onDismissed: (direction) {
+        VideoDownloadHsistory.instance.removeVideoWithVideo(videoModel);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 10,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: baseColumn(context),
           ),
         ),
@@ -50,67 +51,101 @@ class VideoCard extends StatelessWidget {
 
   Column baseColumn(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         videoContent(context),
-        videoModel.isDownloaded != null
-            ? videoModel.isDownloaded
-                ? ElevatedButton(onPressed: openFunc, child: Text(openText))
-                : ElevatedButton(
-                    onPressed: downloadVidFunc, child: Text(downloadText))
-            : ElevatedButton(
-                onPressed: downloadVidFunc, child: Text(downloadText)),
-        videoModel.progress != null ? indicators() : const SizedBox()
+        indicator(context),
       ],
     );
   }
 
-  Row videoContent(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                    videoModel.videoRef?.thumbnails.mediumResUrl ?? ""),
+  Widget downloadBTN(BuildContext context) {
+    if (videoModel != null) {
+      if (videoModel.isDownloaded) {
+        return ElevatedButton(
+          onPressed: openFunc,
+          style: ButtonStyle(
+              shape: MaterialStateProperty.all(const StadiumBorder())),
+          child: Text(openText),
+        );
+      } else {
+        return ElevatedButton(
+            onPressed: downloadVidFunc,
+            child: Text(downloadText),
+            style: ButtonStyle(
+                shape: MaterialStateProperty.all(const StadiumBorder())));
+      }
+    } else {
+      return ElevatedButton(
+          onPressed: downloadVidFunc,
+          child: Text(downloadText),
+          style: ButtonStyle(
+              shape: MaterialStateProperty.all(const StadiumBorder())));
+    }
+  }
+
+  Widget indicator(BuildContext context) {
+    if (videoModel.progress != null) {
+      return indicators();
+    }
+    return const SizedBox();
+  }
+
+  Widget videoContent(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.41,
+      child: Column(
+        children: [
+          Expanded(
+            flex: 2,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.network(
+                videoModel.videoRef?.thumbnails.mediumResUrl ?? "",
+                fit: BoxFit.cover,
               ),
-            )),
-        Expanded(
-          flex: 6,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(videoModel.videoRef?.title ?? nullTitle,
-                    style: Theme.of(context).textTheme.titleSmall,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis),
-                Text(
-                  videoModel.videoRef?.author ?? nullAuthor,
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                videoModel != null
-                    ? Row(
-                        children: [
-                          videoModel.toDropDown(
-                            onChanged: dropdown,
-                          ),
-                          Text("${videoModel.selectedOptionSize} mb")
-                        ],
-                      )
-                    : const SizedBox(),
-              ],
             ),
           ),
-        ),
-      ],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleText(context),
+                  authorText(context),
+                  videoModel != null
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            videoModel.toDropDown(
+                              onChanged: dropdown,
+                            ),
+                            downloadBTN(context)
+                          ],
+                        )
+                      : const SizedBox(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Text titleText(BuildContext context) {
+    return Text(videoModel.videoRef?.title ?? nullTitle,
+        style: Theme.of(context).textTheme.headline6,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis);
+  }
+
+  Text authorText(BuildContext context) {
+    return Text(
+      videoModel.videoRef?.author ?? nullAuthor,
+      style: Theme.of(context).textTheme.bodySmall,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 

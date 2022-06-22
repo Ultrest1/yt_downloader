@@ -68,11 +68,8 @@ class BaseVideoModel {
           selectedOptionSize = e.size?.toStringAsFixed(2);
           return DropdownMenuItem(
               value: e,
-              child: Row(
-                children: [
-                  Text("${e.qualityLabel} "),
-                ],
-              ));
+              child: Text(
+                  "${e.qualityLabel} // ${e.size?.toStringAsFixed(2)} mb"));
         }).toList(),
         onChanged: onChanged);
   }
