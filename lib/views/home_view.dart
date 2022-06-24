@@ -32,7 +32,9 @@ class _HomeViewState extends State<HomeView> {
   final String downloadText = "Download";
   final String nullDescrip = "null description";
   final String ytLink = "www.youtube.com";
+  bool isOpened = false;
   late final LocalDatabase? instanceDB;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
@@ -117,10 +119,12 @@ class _HomeViewState extends State<HomeView> {
 
   VideoCard videoCard(int index, BaseVideoModel? video, BuildContext context) {
     return VideoCard(
+      isOpened: isOpened,
+      scrollController: scrollController,
       videoModel: video ?? BaseVideoModel(""),
       downloadVidFunc: () async {
-        await downloadvid(VideoDownloadHsistory.instance.getVideoList[index]);
-        setState(() {});
+        // await downloadvid(VideoDownloadHsistory.instance.getVideoList[index]);
+        // setState(() {});
       },
       dropdown: (p) {
         video?.dropdownValue = p;
@@ -129,6 +133,11 @@ class _HomeViewState extends State<HomeView> {
       openFunc: () {
         openFile(video);
       },
+      isOpenedFunc: () {
+        isOpened = !isOpened;
+        setState(() {});
+      },
+      downloadFunc: downloadVid,
     );
   }
 
@@ -162,8 +171,12 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Future<void> downloadvid(BaseVideoModel? videoModel) async {
+  Future<void> downloadVid(BaseVideoModel? videoModel, String url) async {
     await checkPermission();
+    if (videoModel?.status == VideoStatus.done &&
+        videoModel?.status == VideoStatus.waiting) {
+      videoModel?.status == VideoStatus.downloading;
+    }
     final dio = Dio();
     final isOkay = await videoModel?.prepareToDownload();
     await videoModel?.generatePathFile();
@@ -172,7 +185,7 @@ class _HomeViewState extends State<HomeView> {
     videoModel?.status = VideoStatus.downloading;
     try {
       await dio.download(
-        videoModel?.dropdownValue?.url?.toString() ?? "",
+        url,
         "${videoModel?.rootPath}/${videoModel?.videoFileName}",
         onReceiveProgress: (count, total) {
           setState(() {
@@ -197,11 +210,12 @@ class _HomeViewState extends State<HomeView> {
     videoModel.status = VideoStatus.done;
     dio.close();
 
+    log(videoModel.status.name);
     setState(() {});
   }
 
   void createDescription(BaseVideoModel? videoModel) {
-    final descriptionFile = File("${videoModel?.rootPath}\\description.txt");
+    final descriptionFile = File("${videoModel?.rootPath}/description.txt");
     descriptionFile.writeAsStringSync(videoModel?.videoRef?.description ?? "");
     log("description file created succesfully");
   }

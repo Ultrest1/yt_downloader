@@ -18,13 +18,14 @@ class BaseVideoModel {
   VideoStatus status = VideoStatus.waiting;
   List<AvailableOption> options = [];
   AvailableOption? dropdownValue;
+  StreamManifest? manifest;
+
+  VideoStreamInfo? streamInfo;
+  final _yt = YoutubeExplode();
+
   BaseVideoModel(this.searchUrl) {
     prepareToDownload();
   }
-
-  final _yt = YoutubeExplode();
-  StreamManifest? manifest;
-  VideoStreamInfo? streamInfo;
 
   void getQualities() {}
 
@@ -32,7 +33,18 @@ class BaseVideoModel {
     if (videoRef == null) return false;
 
     manifest = await _yt.videos.streams.getManifest(videoRef?.id);
+    for (var element in manifest!.videoOnly) {
+      log("video: ${manifest?.videoOnly.length} ");
+      log(element.toString());
+    }
 
+    for (var element in manifest!.audioOnly) {
+      log("audio: ${manifest?.audioOnly.length}");
+      log(element.toString());
+    }
+    final asdasd = manifest?.videoOnly
+        .where((element) => element.container == StreamContainer.mp4);
+    log("asdasd" + asdasd.toString());
     if (manifest == null) return false;
     for (var element in manifest!.video) {
       if (!element.qualityLabel.toString().contains("1080")) {
