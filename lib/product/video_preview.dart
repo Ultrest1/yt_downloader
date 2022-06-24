@@ -121,31 +121,6 @@ class VideoCard extends StatelessWidget {
     );
   }
 
-  // Widget downloadBTN(BuildContext context) {
-  //   if (videoModel != null) {
-  //     if (videoModel.isDownloaded) {
-  //       return ElevatedButton(
-  //         onPressed: openFunc,
-  //         style: ButtonStyle(
-  //             shape: MaterialStateProperty.all(const StadiumBorder())),
-  //         child: Text(openText),
-  //       );
-  //     } else {
-  //       return ElevatedButton(
-  //           onPressed: downloadVidFunc,
-  //           style: ButtonStyle(
-  //               shape: MaterialStateProperty.all(const StadiumBorder())),
-  //           child: Text(downloadText));
-  //     }
-  //   } else {
-  //     return ElevatedButton(
-  //         onPressed: downloadVidFunc,
-  //         style: ButtonStyle(
-  //             shape: MaterialStateProperty.all(const StadiumBorder())),
-  //         child: Text(downloadText));
-  //   }
-  // }
-
   Widget indicator(BuildContext context) {
     if (videoModel.progress != null) {
       return indicators();
@@ -154,45 +129,6 @@ class VideoCard extends StatelessWidget {
     }
     return const SizedBox();
   }
-
-  // Widget videoContent(BuildContext context) {
-  //   return Column(
-  //     children: [
-  //       ClipRRect(
-  //         borderRadius: BorderRadius.circular(15),
-  //         child: Image.network(
-  //           videoModel.videoRef?.thumbnails.mediumResUrl ?? "",
-  //           fit: BoxFit.fitWidth,
-  //         ),
-  //       ),
-  //       const Divider(),
-  //       Padding(
-  //         padding: const EdgeInsets.all(10.0),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             titleText(context),
-  //             authorText(context),
-  //             videoModel != null
-  //                 ? Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                     children: [
-  //                       videoModel.toDropDown(
-  //                         onChanged: dropdown,
-  //                       ),
-  //                       downloadBTN(context)
-  //                     ],
-  //                   )
-  //                 : const SizedBox(),
-  //             // Container(
-  //             //   child: Icon(Icons.add),
-  //             // )
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Text titleText(BuildContext context) {
     return Text(videoModel.videoRef?.title ?? nullTitle,
