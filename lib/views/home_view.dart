@@ -12,6 +12,7 @@ import 'package:yt_downloader/utils/local_database/local_database.dart';
 
 import '../product/base_video_model.dart';
 import '../product/searched_handler.dart';
+//deneme1
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -23,8 +24,6 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final textController = TextEditingController();
   final textFieldNode = FocusNode();
-
-  //deneme1
 
   bool isOpened = false;
   late final LocalDatabase? instanceDB;
