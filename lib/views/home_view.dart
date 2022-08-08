@@ -24,6 +24,8 @@ class _HomeViewState extends State<HomeView> {
   final textController = TextEditingController();
   final textFieldNode = FocusNode();
 
+  //deneme
+
   bool isOpened = false;
   late final LocalDatabase? instanceDB;
   final ScrollController scrollController = ScrollController();
