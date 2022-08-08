@@ -5,8 +5,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
 import 'package:permission_handler/permission_handler.dart';
+import 'package:yt_downloader/contants/contants.dart';
 import 'package:yt_downloader/product/video_preview.dart';
 import 'package:yt_downloader/utils/local_database/local_database.dart';
 
@@ -23,15 +23,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final textController = TextEditingController();
   final textFieldNode = FocusNode();
-  final String searchedBeforeURL = "";
-  final String hintText = "search.. www.youtube.com";
-  final String noVideo = "No video yet";
-  final String nullTitle = "Null title";
-  final String nullAuthor = "null author";
-  final String openText = "Open";
-  final String downloadText = "Download";
-  final String nullDescrip = "null description";
-  final String ytLink = "www.youtube.com";
+
   bool isOpened = false;
   late final LocalDatabase? instanceDB;
   final ScrollController scrollController = ScrollController();
@@ -84,7 +76,7 @@ class _HomeViewState extends State<HomeView> {
         cursorColor: Colors.red,
         cursorHeight: 20,
         decoration: InputDecoration(
-            hintText: hintText, border: const UnderlineInputBorder()),
+            hintText: contants.hintText, border: const UnderlineInputBorder()),
       ),
       actions: [
         IconButton(
@@ -96,7 +88,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget buildList() {
     if (VideoDownloadHsistory.instance.getVideoList.length == 0) {
-      return Center(child: Text(noVideo));
+      return Center(child: Text(contants.noVideo));
     } else {
       return Expanded(
           child: ListView.builder(
@@ -161,7 +153,7 @@ class _HomeViewState extends State<HomeView> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    hintText: ytLink)),
+                    hintText: contants.ytLink)),
           ),
         ),
         IconButton(
